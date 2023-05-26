@@ -303,6 +303,4 @@ document.addEventListener('DOMContentLoaded', () => {
         ${resultTextWithPercentage}`
     }).then(message => console.log(message));
   }
-});
-   
-      
+});      
