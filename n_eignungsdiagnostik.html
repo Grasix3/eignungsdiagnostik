@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Eignungsdiagnostik</title>
+  <meta charset="UTF-8">-
+  <title>Conti Eignungsdiagnostik</title>
   <link rel="stylesheet" href="n_style.css">
 </head>
 <body>
@@ -13,8 +13,8 @@
     <h1>Eignungsdiagnostik</h1>
     <div id="timer" class="timer-container" style="display: none;"></div> 
     <form id="user-info-form">
-      <label for="user-id">ID:</label>
-      <input type="text" id="user-id" name="user-id" required>
+      <label for="user-id">UI-Nummer:</label>
+      <input type="text" id="user-id" name="user-id" required pattern="^(uia|uib|uic|uid|uie|uif|uig)[0-9]{5}$" title="Deine UI beginnt mit uia, uib, uic, uid, uie, uif oder uig, darauf folgen fünf Ziffern.">
       <label for="first-name">Vorname:</label>
       <input type="text" id="first-name" name="first-name" required>
       <label for="last-name">Nachname:</label>
