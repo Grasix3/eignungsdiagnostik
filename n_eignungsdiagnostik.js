@@ -104,7 +104,7 @@ const questions = [
     answers: [
       { text: "C++", correct: true },
       { text: "Jawa", correct: false },
-      { text: "Delphi", correct: false },
+      { text: "PowerrBI", correct: false },
     ],
     correctAnswer: 0,
     tag: "C"
@@ -117,17 +117,19 @@ const questions = [
       { text: "22", correct: false },
     ],
     correctAnswer: 1,
-    tag: "Analyse"
+    tag: "Analyse",
+    tag: "logisches Denken"
   },
   {
     question: "Setze die Zahlenreihe fort: 16-14-28-30-15-13-?",
     answers: [
-      { text: "26", correct: true },
       { text: "24", correct: false },
       { text: "18", correct: false },
+      { text: "26", correct: true },
     ],
-    correctAnswer: 0,
-    tag: "Analyse"
+    correctAnswer: 2,
+    tag: "Analyse",
+    tag: "logisches Denken"
   },
   {
     question: "Was ist Künstliche Intelligenz (KI)?",
@@ -152,21 +154,21 @@ const questions = [
   {
     question: "Was versteht man unter 'Embedded Systems'?",
     answers: [
-      { text: "Es ist ein System, das in ein größeres System eingebettet ist und eine spezifische Funktion oder mehrere Funktionen ausführt", correct: true },
       { text: "Ein Betriebssystem speziell für mobile Geräte", correct: false },
+      { text: "Es ist ein System, das in ein größeres System eingebettet ist und eine spezifische Funktion oder mehrere Funktionen ausführt", correct: true },
       { text: "Ein Computersystem mit Software, die nicht aktualisiert oder geändert werden kann", correct: false },
     ],
-    correctAnswer: 0,
+    correctAnswer: 1,
     tag: "Embedded Systems"
   },
   {
     question: "Was ist eine der Hauptaufgaben des Controllings in einem Unternehmen?",
     answers: [
-      { text: "Die Überwachung und Steuerung von Unternehmensprozessen und -leistungen", correct: true },
       { text: "Die Programmierung von Software", correct: false },
       { text: "Das Design der Unternehmenswebsite", correct: false },
+      { text: "Die Überwachung und Steuerung von Unternehmensprozessen und -leistungen", correct: true },
     ],
-    correctAnswer: 0,
+    correctAnswer: 2,
     tag: "Controlling"
   }  
 ];
@@ -188,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let correctAnswers = 0;
   let timer;
   let timeLeft = 15 * 60; // 15 Minuten
+  let userAnswers = [];  // Array to store user's answers
 
   nextButton.type = 'button';
   nextButton.textContent = 'Nächste Frage';
@@ -208,6 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Bitte wählen Sie eine Antwort aus.');
       return;
     }
+
+    userAnswers[currentQuestionIndex] = userAnswer; // store user's answer
 
     if (questions[currentQuestionIndex].correctAnswer === userAnswer) {
       correctAnswers++;
@@ -234,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (timeLeft <= 0) {
         clearInterval(timer);
         quizForm.style.display = 'none';
-        abortButton.style.display = 'none'; // Buttons verstecken, wenn die Zeit abgelaufen ist
+        abortButton.style.display = 'none';
         resumeButton.style.display = 'none';
         displayResult();
       }
@@ -271,36 +276,93 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function getUserAnswer() {
-    const answerRadios = document.querySelectorAll(`input[name="q${currentQuestionIndex}"]`);
-    let userAnswer = null;
+    const answerEls = document.querySelectorAll(`input[name="q${currentQuestionIndex}"]:checked`);
+    return answerEls.length > 0 ? Number(answerEls[0].value) : null;
+  }
 
-    answerRadios.forEach((radio) => {
-      if (radio.checked) {
-        userAnswer = parseInt(radio.value);
+  function getUserAnswerForIndex(index) {
+    return userAnswers[index];
+  }
+
+  function analyzeTags() {
+    let correctTags = questions
+      .filter((_, index) => questions[index].correctAnswer === getUserAnswerForIndex(index))
+      .map(q => q.tag);
+
+    let departmentRecommendations = [];
+
+    correctTags.forEach((tag) => {
+      if (departmentTags[tag]) {
+        departmentTags[tag].forEach((department) => {
+          if (!departmentRecommendations.includes(department)) {
+            departmentRecommendations.push(department);
+          }
+        });
       }
     });
 
-    return userAnswer;
+    return departmentRecommendations.slice(0, 3); // return up to 3 departments
   }
 
+  let departmentTags = {
+    "Allgemeine Informatik": ["A SCT ASW SWT SET AUT", "A IT MA CI / VNI CCN O RBG IE 31&2"],
+    "Datenbanken, Python": ["A AN PL1 RD EMEA RBG SW 2"],
+    "KI, IT-Sec, TI, Elektrotechnik": ["A SAM HBS AMR PL"],
+    "embedded Systems, IT-Sec": ["A AN PL1 RD EMEA RBG SW 1"],
+    "Cloud, Industrie 4.0": ["A O M DT DM A"],
+    "C, embedded Systems": ["A AN PL3 RD SW FP1"],
+    "C": ["A AN PL3 RD SYS FP 2", "A O PUR SQM EM CPM", "A SCT RM HW RGB EMO11"],
+    "Cloud": ["GF GIT DP CF"],
+    "IT-Sec": ["A SAM PSS OSS RD SE FSS"],
+    "KI": ["A SCT RAE OE SW"],
+    "Reports": ["A SCT ARDC PRI", "A AN O RBG FF2 SCM", "A FC BC CM", "A AN S3 CC1 S", "A AN O RBG C FCC1"],
+    "Analyse": ["A SCT RAE IM", "A AM ADAS O ING IE TS", "A SAM PSS ECC RD CCU SE"],
+    "Controlling": ["A AN C RD"],
+    "Elektrotechnik": ["A AN O RBG HR E&T", "A SCT RM HW RGB EMO11"],
+    "Industrie 4.0": ["A AN O RBG FF1 IE SMT", "A AN O RBG IE51"],
+    "Python, SQL, Datenbanken": ["A O IT MA CI"]
+  };
+  
   function displayResult() {
-    const resultText = `Ergebnis: ${document.getElementById('first-name').value} hat ${correctAnswers} von ${questions.length} Fragen richtig beantwortet.`;
-    const percentageCorrect = Math.round((correctAnswers / questions.length) * 100);
-    const resultTextWithPercentage = `${resultText} Du hast somit ${percentageCorrect}% der Fragen richtig beantwortet.`;
-    resultContainer.innerHTML = resultTextWithPercentage;
-    abortButton.style.display = 'none';
-    resumeButton.style.display = 'none';
+    clearInterval(timer);
     timerElement.style.display = 'none';
-
-    Email.send({
-      SecureToken: "e2200235-e4e3-4203-864d-4e2f5732c087",
-      To: 'michael.grasmueck@continental-corporation.com',
-      From: "grasi.lol.xd@googlemail.com",
-      Subject: `Das ist das Ergebnis der Eignungsdiagnostik von ${document.getElementById('user-id').value}`,
-      Body: `ID: ${document.getElementById('user-id').value}<br>
-        Name: ${document.getElementById('last-name').value}<br>
-        Vorname: ${document.getElementById('first-name').value}<br>
-        ${resultTextWithPercentage}`
-    }).then(message => console.log(message));
+    abortButton.style.display = 'none';
+  
+    // Vorname, Nachname und ID abrufen
+    const firstName = document.getElementById('first-name').value;
+    const lastName = document.getElementById('last-name').value;
+    const userId = document.getElementById('user-id').value;
+  
+    const resultText = `${firstName} ${lastName}, mit der ID: ${userId}, hat ${correctAnswers} von ${questions.length} Fragen richtig beantwortet.`;
+  
+    const departmentRecommendations = analyzeTags();
+    const recommendationText = departmentRecommendations.length > 0
+      ? `Basierend auf ${firstName} ${lastName}'s Antworten empfehlen wir folgende Abteilung(en): ${departmentRecommendations.join(', ')}`
+      : `Leider haben wir keine spezifische Abteilungsempfehlung basierend auf ${firstName} ${lastName}'s Antworten.`;
+  
+    resultContainer.innerHTML = `<p>${resultText}</p><p>${recommendationText}</p>`;
+    resultContainer.style.display = 'block';
+  
+    // E-Mail-Adresse aus der Benutzer-ID erstellen
+    const userEmail = `${userId}@contiwan.com`;
+    const subject_for_mail = `Das Ergebnis der Eignungsdiagnostik von ${userId}`
+  
+    // E-Mail-Daten erstellen
+    var templateParams = {
+      to_email: 'michael.grasmuck@icloud.com',
+      subject: subject_for_mail,
+      from_name: 'Michael Grasmück',
+      to_name: 'Tobias',
+      message: resultText + " " + recommendationText,
+      reply_to: userEmail,  
+    };
+  
+    // E-Mail senden
+    emailjs.send('service_ghse5za', 'template_cad1o25', templateParams, 'UBoWE2WCtSjUpgpQK')
+    .then(function(response) {
+       console.log('SUCCESS!', response.status, response.text);
+    }, function(error) {
+       console.error('FAILED...', error);
+    });
   }
-});      
+});
